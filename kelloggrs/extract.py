@@ -10,9 +10,10 @@ import tempfile
 from PIL import Image as IM
 
 
-def extract_pages(in_path, out_path):
+def extract_pages(in_path, out_path, logger):
     for pdf_file in in_path.glob("*.pdf"):
-        print(pdf_file.name)
+        logger.info(pdf_file.name)
+        doc1 = fitz.open(pdf_file)
 
 
 def main():
@@ -36,7 +37,7 @@ def main():
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-    fh = logging.FileHandler(Path(args.out_path) / "cafrs_extract.log")
+    fh = logging.FileHandler(Path(args.out_path) / "extract.log")
     fh.setFormatter(formatter)
     fh.setLevel(logging.INFO)
     logger.addHandler(fh)
@@ -48,7 +49,7 @@ def main():
 
     in_path = Path(args.in_path)
     out_path = Path(args.out_path)
-    extract_pages(in_path, out_path)
+    extract_pages(in_path, out_path, logger)
 
     sys.exit(0)
 

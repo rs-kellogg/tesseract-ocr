@@ -1,0 +1,2 @@
+in_path: tests/data/sec-sample-pdf
+out_path: tests/data/output
