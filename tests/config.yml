@@ -1,2 +1,3 @@
 in_path: tests/data/sec-sample-pdf
 out_path: tests/data/output
+test_pdf_1: 04000085.pdf

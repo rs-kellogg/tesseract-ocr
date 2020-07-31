@@ -1,6 +1,9 @@
 import pytest
 import os
 import logging
+import fitz
+from pathlib import Path
+from kelloggrs import extract
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -29,3 +32,22 @@ def test_extract_script(script_runner):
     assert ret.success
     assert ret.stdout != ""
     assert ret.stderr == ""
+
+
+def test_extract_pdfs(config):
+    in_path = Path(dir_path) / f"../{config['in_path']}"
+    out_path = Path(dir_path) / f"../{config['out_path']}"
+    for f in out_path.glob("*.png"):
+        f.unlink()
+    extract.extract_pdfs(in_path, out_path, page_nums={1,2,3})
+
+
+def test_extract_pages(config):
+    in_path = Path(dir_path) / f"../{config['in_path']}"
+    out_path = Path(dir_path) / f"../{config['out_path']}"
+    pdf_file = in_path / config["test_pdf_1"]
+    pages = extract.extract_pages(pdf_file)
+    assert len(pages[1]) == 9
+
+    pages = extract.extract_pages(pdf_file, page_nums={1,2,3})
+    assert len(pages[1]) == 3
