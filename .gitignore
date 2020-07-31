@@ -141,7 +141,4 @@ dmypy.json
 default.profraw
 
 temp/
-data/cafrs
-data/sample
-data/review
-data/sample.tgz
+tests/data/output
