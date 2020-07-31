@@ -19,14 +19,21 @@ setup(
         "sqlalchemy",
         "dask",
         "joblib",
-        "pytesseract"
+        "pytesseract",
     ],
-    extras_require={"interactive": ["jupyterlab", "jupyter_nbextensions_configurator", "ipyparallel"]},
-    entry_points={
-        "console_scripts": [
-            "extract_pages=kelloggrs.extract:main",
+    extras_require={
+        "interactive": [
+            "jupyterlab",
+            "jupyter_nbextensions_configurator",
+            "ipyparallel",
         ]
     },
+    entry_points={"console_scripts": ["extract_pages=kelloggrs.extract:main",]},
     setup_requires=["black", "flake8"],
-    tests_require=["pytest", "pytest-console-scripts", "pytest_tornasync", "pytest-runner"],
+    tests_require=[
+        "pytest",
+        "pytest-console-scripts",
+        "pytest_tornasync",
+        "pytest-runner",
+    ],
 )

@@ -37,9 +37,11 @@ def test_extract_script(script_runner):
 def test_extract_pdfs(config):
     in_path = Path(dir_path) / f"../{config['in_path']}"
     out_path = Path(dir_path) / f"../{config['out_path']}"
+    if not out_path.exists():
+        os.mkdir(out_path)
     for f in out_path.glob("*.png"):
         f.unlink()
-    extract.extract_pdfs(in_path, out_path, page_nums={1,2,3})
+    extract.extract_pdfs(in_path, out_path, page_nums={1, 2, 3})
 
 
 def test_extract_pages(config):
@@ -49,5 +51,5 @@ def test_extract_pages(config):
     pages = extract.extract_pages(pdf_file)
     assert len(pages[1]) == 9
 
-    pages = extract.extract_pages(pdf_file, page_nums={1,2,3})
+    pages = extract.extract_pages(pdf_file, page_nums={1, 2, 3})
     assert len(pages[1]) == 3

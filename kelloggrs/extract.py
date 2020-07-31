@@ -10,17 +10,24 @@ from pathlib import Path
 from typing import List, Set, Tuple
 
 
-def extract_pdfs(in_path: Path, out_path: Path, logger: logging.Logger = None, page_nums: Set[int] = None):
+def extract_pdfs(
+    in_path: Path,
+    out_path: Path,
+    logger: logging.Logger = None,
+    page_nums: Set[int] = None,
+):
     for pdf_file in in_path.glob("*.pdf"):
         if logger:
             logger.info(f"extracting page images from pdf: {pdf_file.name}")
         doc, pages = extract_pages(pdf_file, page_nums)
         for p in pages:
-            pix = p.getPixmap(fitz.Matrix(3,3))
+            pix = p.getPixmap(fitz.Matrix(3, 3))
             pix.writeImage(f"{str(out_path)}/{pdf_file.stem}-page-{p.number}.png")
 
 
-def extract_pages(pdf_file: Path, page_nums: Set[int] = None) -> Tuple[fitz.Document, List[fitz.Page]]:
+def extract_pages(
+    pdf_file: Path, page_nums: Set[int] = None
+) -> Tuple[fitz.Document, List[fitz.Page]]:
     doc = fitz.open(pdf_file)
     pages = list(doc.pages())
     extracted_pages = []
@@ -36,27 +43,6 @@ def extract_pages(pdf_file: Path, page_nums: Set[int] = None) -> Tuple[fitz.Docu
                 break
     return (doc, extracted_pages)
 
-# def write_image(pdf_file: Path, out_path: Path):
-#     with tempfile.TemporaryDirectory() as temp_dir:
-#         try:
-#             doc = fitz.open(pdf_file)
-#             if doc.pageCount > 0:
-#                 for p in doc.pages():
-#                     pix = p.getPixmap(fitz.Matrix(2, 2))
-#                     # pix = p.getPixmap(fitz.Matrix(3, 3))
-#                     pix.writeImage(
-#                         f"{str(temp_dir)}/{pdf_file.stem}-page-{p.number}.png"
-#                     )
-#                 png_files = list(Path(temp_dir).glob("*.png"))
-#                 png_files.sort()
-#                 images = [IM.open(png_file) for png_file in png_files]
-#                 CAFRSTableExtractor.combine_images(
-#                     images, out_path / f"{pdf_file.stem}.png"
-#                 )
-#         except Exception as e:
-#             self.logger.error(f"Exception thrown on {pdf_file.name}: {e}")
-#         finally:
-#             pass
 
 def main():
     # parse the arguments
