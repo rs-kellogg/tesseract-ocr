@@ -63,7 +63,7 @@ def main():
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-    fh = logging.FileHandler(Path(args.out_path) / "extract.log")
+    fh = logging.FileHandler(Path(args.in_path) / "extract.log")
     fh.setFormatter(formatter)
     fh.setLevel(logging.INFO)
     logger.addHandler(fh)
