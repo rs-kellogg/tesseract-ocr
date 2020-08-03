@@ -4,9 +4,6 @@ import argparse
 import sys
 import logging
 import fitz
-import tempfile
-from PIL import Image as IM
-import cv2
 from pathlib import Path
 from typing import List, Set, Tuple
 
@@ -50,7 +47,6 @@ def main():
     # parse the arguments
     parser = argparse.ArgumentParser(prog="extract_pages")
     parser.add_argument("in_path", help="the path to the input pdf files")
-    # parser.add_argument("out_path", help="the path to the output image files")
     parser.add_argument(
         "-v", "--verbose", help="increase verbosity", action="store_true"
     )
@@ -78,9 +74,8 @@ def main():
         logger.addHandler(ch)
 
     in_path = Path(args.in_path)
-    # out_path = Path(args.out_path)
 
-    extract_pdfs(in_path, out_path, logger)
+    extract_pdfs(in_path, logger)
 
     sys.exit(0)
 
