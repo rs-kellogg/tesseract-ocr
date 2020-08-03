@@ -6,23 +6,25 @@ import logging
 import fitz
 import tempfile
 from PIL import Image as IM
+import cv2
 from pathlib import Path
 from typing import List, Set, Tuple
 
 
 def extract_pdfs(
     in_path: Path,
-    out_path: Path,
     logger: logging.Logger = None,
     page_nums: Set[int] = None,
 ):
-    for pdf_file in in_path.glob("*.pdf"):
-        if logger:
-            logger.info(f"extracting page images from pdf: {pdf_file.name}")
-        doc, pages = extract_pages(pdf_file, page_nums)
-        for p in pages:
-            pix = p.getPixmap(fitz.Matrix(3, 3))
-            pix.writeImage(f"{str(out_path)}/{pdf_file.stem}-page-{p.number}.png")
+    subdirs = [f for f in in_path.iterdir() if f.is_dir()]
+    for dir in subdirs:
+        for pdf_file in dir.glob("*.pdf"):
+            if logger:
+                logger.info(f"extracting page images from pdf: {pdf_file.name}")
+            doc, pages = extract_pages(pdf_file, page_nums)
+            for p in pages:
+                pix = p.getPixmap(fitz.Matrix(3, 3))
+                pix.writeImage(f"{str(dir)}/{pdf_file.stem}-page-{p.number}.png")
 
 
 def extract_pages(
@@ -48,7 +50,7 @@ def main():
     # parse the arguments
     parser = argparse.ArgumentParser(prog="extract_pages")
     parser.add_argument("in_path", help="the path to the input pdf files")
-    parser.add_argument("out_path", help="the path to the output image files")
+    # parser.add_argument("out_path", help="the path to the output image files")
     parser.add_argument(
         "-v", "--verbose", help="increase verbosity", action="store_true"
     )
@@ -76,8 +78,9 @@ def main():
         logger.addHandler(ch)
 
     in_path = Path(args.in_path)
-    out_path = Path(args.out_path)
-    extract_page_images(in_path, out_path, logger)
+    # out_path = Path(args.out_path)
+
+    extract_pdfs(in_path, out_path, logger)
 
     sys.exit(0)
 
