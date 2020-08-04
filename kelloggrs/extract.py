@@ -18,10 +18,14 @@ def extract_pdfs(
         for pdf_file in dir.glob("*.pdf"):
             if logger:
                 logger.info(f"extracting page images from pdf: {pdf_file.name}")
-            doc, pages = extract_pages(pdf_file, page_nums)
-            for p in pages:
-                pix = p.getPixmap(fitz.Matrix(3, 3))
-                pix.writeImage(f"{str(dir)}/{pdf_file.stem}-page-{p.number}.png")
+            try:
+                doc, pages = extract_pages(pdf_file, page_nums)
+                for p in pages:
+                    pix = p.getPixmap(fitz.Matrix(3, 3))
+                    pix.writeImage(f"{str(dir)}/{pdf_file.stem}-page-{p.number}.png")
+            except Exception as e:
+                if logger:
+                    logger.error(f"error extracting pages from: {pdf_file.name} ->{e}")
 
 
 def extract_pages(
