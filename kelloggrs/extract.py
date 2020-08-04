@@ -8,6 +8,10 @@ from pathlib import Path
 from typing import List, Set, Tuple
 
 
+def ocr_image(image_files: List[Path]) -> List[str]:
+    return None
+
+
 def extract_pdfs(
     in_path: Path,
     logger: logging.Logger = None,

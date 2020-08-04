@@ -28,7 +28,10 @@ setup(
             "ipyparallel",
         ]
     },
-    entry_points={"console_scripts": ["extract_pages=kelloggrs.extract:main",]},
+    entry_points={"console_scripts": [
+        "extract_pages=kelloggrs.extract:main",
+        "process_pages=kelloggrs.process:main",
+    ]},
     setup_requires=["black", "flake8"],
     tests_require=[
         "pytest",
