@@ -4,6 +4,7 @@ import argparse
 import sys
 import logging
 import fitz
+import dask
 from pathlib import Path
 from typing import List, Set, Tuple
 
@@ -28,6 +29,7 @@ def extract_pdfs(
                     logger.error(f"error extracting pages from: {pdf_file.name} ->{e}")
 
 
+@dask.delayed
 def extract_pages(
     pdf_file: Path, page_nums: Set[int] = None
 ) -> Tuple[fitz.Document, List[fitz.Page]]:
