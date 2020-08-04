@@ -22,7 +22,7 @@ def extract_texts(
                 if curr_num not in page_nums:
                     continue
             if logger:
-                logger.info(f"processing page image file: {png_file.name}")
+                logger.info(f"processing page file: {png_file.name}")
             Path(f"{dir}/{png_file.stem}.txt").write_text(extract_text(png_file))
 
 
