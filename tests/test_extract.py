@@ -35,9 +35,7 @@ def test_extract_script(script_runner, config):
     assert ret.stdout != ""
     assert ret.stderr == ""
 
-    ret = script_runner.run(
-        "extract_pages", "-v",
-        f"{in_path}", "1")
+    ret = script_runner.run("extract_pages", "-v", f"{in_path}", "1")
     assert ret.success
 
 

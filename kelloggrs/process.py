@@ -12,8 +12,7 @@ from typing import List, Set, Tuple
 def process_image(image_file: Path) -> List[str]:
     ocr_texts = []
     ocr_text = pytesseract.image_to_string(
-        Image.open(image_file),
-        config=r"-l eng --psm 6 -c preserve_interword_spaces=1"
+        Image.open(image_file), config=r"-l eng --psm 6 -c preserve_interword_spaces=1"
     )
     return ocr_text
 
