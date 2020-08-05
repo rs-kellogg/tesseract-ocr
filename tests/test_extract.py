@@ -36,7 +36,7 @@ def test_extract_script(script_runner):
 
 def test_extract_pdfs(config, extract_logger):
     in_path = Path(dir_path) / f"{config['in_path']}"
-    extract.extract_pdfs(in_path, logger=extract_logger, page_nums={0, 1, 2, 3, 4})
+    extract.process_pages(in_path, logger=extract_logger, page_nums={0, 1, 2, 3, 4})
 
 
 def test_extract_pages(config):

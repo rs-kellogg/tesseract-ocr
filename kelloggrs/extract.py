@@ -9,27 +9,6 @@ from pathlib import Path
 from typing import List, Set, Tuple
 
 
-def extract_pdfs(
-    in_path: Path,
-    logger: logging.Logger = None,
-    page_nums: Set[int] = None,
-):
-    subdirs = [f for f in in_path.iterdir() if f.is_dir()]
-    for dir in subdirs:
-        for pdf_file in dir.glob("*.pdf"):
-            if logger:
-                logger.info(f"extracting page images from pdf: {pdf_file.name}")
-            try:
-                doc, pages = extract_pages(pdf_file, page_nums)
-                for p in pages:
-                    pix = p.getPixmap(fitz.Matrix(3, 3))
-                    pix.writeImage(f"{str(dir)}/{pdf_file.stem}-page-{p.number}.png")
-            except Exception as e:
-                if logger:
-                    logger.error(f"error extracting pages from: {pdf_file.name} ->{e}")
-
-
-@dask.delayed
 def extract_pages(
     pdf_file: Path, page_nums: Set[int] = None
 ) -> Tuple[fitz.Document, List[fitz.Page]]:
@@ -53,6 +32,7 @@ def main():
     # parse the arguments
     parser = argparse.ArgumentParser(prog="extract_pages")
     parser.add_argument("in_path", help="the path to the input pdf files")
+    parser.add_argument("page_nums", help="the page numbers to extract text from")
     parser.add_argument(
         "-v", "--verbose", help="increase verbosity", action="store_true"
     )
@@ -79,9 +59,25 @@ def main():
         ch.setLevel(logging.INFO)
         logger.addHandler(ch)
 
+    if args.page_nums in ["all", "All", "ALL"]:
+        page_nums = None
+    else:
+        page_nums = {int(n) for n in args.page_nums.split(",")}
+
     in_path = Path(args.in_path)
 
-    extract_pdfs(in_path, logger)
+    subdirs = [f for f in in_path.iterdir() if f.is_dir()]
+    for dir in subdirs:
+        for pdf_file in dir.glob("*.pdf"):
+            logger.info(f"extracting page images from pdf: {pdf_file.name}")
+            try:
+                doc, pages = extract_pages(pdf_file, page_nums)
+                for p in pages:
+                    pix = p.getPixmap(fitz.Matrix(3, 3))
+                    pix.writeImage(f"{str(dir)}/{pdf_file.stem}-page-{p.number}.png")
+            except Exception as e:
+                if logger:
+                    logger.error(f"error extracting pages from: {pdf_file.name} ->{e}")
 
     sys.exit(0)
 
