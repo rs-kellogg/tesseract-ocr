@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import List, Set, Tuple
 
 
-def extract_text(image_file: Path) -> List[str]:
+def process_image(image_file: Path) -> List[str]:
     ocr_texts = []
     ocr_text = pytesseract.image_to_string(
         Image.open(image_file),
@@ -65,7 +65,7 @@ def main():
                     continue
             if logger:
                 logger.info(f"processing page file: {png_file.name}")
-            Path(f"{dir}/{png_file.stem}.txt").write_text(extract_text(png_file))
+            Path(f"{dir}/{png_file.stem}.txt").write_text(process_image(png_file))
 
     sys.exit(0)
 

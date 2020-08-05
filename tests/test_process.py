@@ -35,15 +35,10 @@ def test_process_script(script_runner):
     assert ret.stderr == ""
 
 
-def test_extract_texts(config, process_logger):
-    in_path = Path(dir_path) / f"{config['in_path']}"
-    process.extract_texts(in_path, logger=process_logger, page_nums={2,3})
-
-
-def test_extract_text(config):
+def test_process_image(config):
     in_path = Path(dir_path) / f"{config['in_path']}"
     image_files = list((in_path / "9999999997-12-008041-index").glob("*.png"))
-    text = process.extract_text(image_files[3])
+    text = process.process_image(image_files[3])
     assert "Full Name" in text
     assert "Address" in text
 
