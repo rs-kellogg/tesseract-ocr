@@ -28,11 +28,18 @@ def process_logger(config):
     return logger
 
 
-def test_process_script(script_runner):
+def test_process_script(script_runner, config):
+    in_path = Path(dir_path) / f"{config['in_path']}"
+
     ret = script_runner.run("process_pages", "-h")
     assert ret.success
     assert ret.stdout != ""
     assert ret.stderr == ""
+
+    ret = script_runner.run(
+        "process_pages", "-v",
+        f"{in_path}", "1")
+    assert ret.success
 
 
 def test_process_image(config):
