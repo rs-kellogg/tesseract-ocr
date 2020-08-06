@@ -10,15 +10,17 @@ from PIL import Image
 from pathlib import Path
 from typing import List, Set, Tuple
 from dask.distributed import Client
-
+from dask import distributed
 
 def process_file(image_file: Path, logger) -> bool:
     try:
         logger.info(f"processing file: {image_file.name}")
-        ocr_text = pytesseract.image_to_string(
-            Image.open(image_file), config=r"-l eng --psm 6 -c preserve_interword_spaces=1"
-        )
-        Path(image_file.parent / f"{image_file.stem}.txt").write_text(ocr_text)
+        outfile = Path(image_file.parent / f"{image_file.stem}.txt")
+        if not(outfile.is_file()):
+            ocr_text = pytesseract.image_to_string(
+                Image.open(image_file), config=r"-l eng --psm 6 -c preserve_interword_spaces=1"
+            )
+            outfile.write_text(ocr_text)
         return True
     except:
         return False
@@ -30,6 +32,7 @@ def main():
     parser.add_argument("in_path", help="the path to the input image files")
     parser.add_argument("page_nums", help="the page numbers to process")
     parser.add_argument("n_workers", help="number of workers to use")
+
     parser.add_argument(
         "-v", "--verbose", help="increase verbosity", action="store_true"
     )
@@ -64,25 +67,26 @@ def main():
     in_path = Path(args.in_path)
 
     n_workers = int(args.n_workers)
-    dask.config.set(scheduler='processes')
+
+    dask.config.set(scheduler="multiprocessing")
     dask.config.set(n_workers=n_workers)
 
     logger.info(f"processing subdirectories in path: {in_path}")
-    subdirs = [f for f in in_path.iterdir() if f.is_dir()]
-    for dir in subdirs:
-        start = dt.now()
-        process_tasks = []
-        for image_file in list(dir.glob("*.png")):
-            if page_nums:
-                curr_num = int(image_file.stem.split("-")[-1])
-                if curr_num not in page_nums:
-                    continue
-            process_tasks.append(dask.delayed(process_file)(image_file, logger))
-        result = dask.delayed(sum)(process_tasks)
-        sum_result = dask.compute(result)[0]
-        end = dt.now()
-        logger.info(f"{dir.name}: {sum_result} pages successfully processed in {end-start} seconds")
+    image_files = list(in_path.rglob("*index-page-[0-9].png"))
 
+    process_tasks = []
+    start = dt.now()
+    for image_file in image_files:
+        if page_nums:
+            curr_num = int(image_file.stem.split("-")[-1])
+            if curr_num not in page_nums:
+                continue
+        process_tasks.append(dask.delayed(process_file)(image_file, logger))
+    result = dask.delayed(sum)(process_tasks)
+    sum_result = dask.compute(result)[0]
+    end = dt.now()
+    logger.info(f"{in_path.name}: {sum_result} pages successfully processed in {end-start} seconds")
+    # c.close()
     sys.exit(0)
 
 
