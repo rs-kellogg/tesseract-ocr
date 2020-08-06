@@ -36,13 +36,6 @@ def test_process_script(script_runner, config):
     assert ret.stdout != ""
     assert ret.stderr == ""
 
-    ret = script_runner.run("process_pages", "-v", f"{in_path}", "1")
+    ret = script_runner.run("process_pages", "-v", f"{in_path}", "1,2,3", "8")
     assert ret.success
 
-
-def test_process_image(config):
-    in_path = Path(dir_path) / f"{config['in_path']}"
-    image_files = list((in_path / "9999999997-12-008041-index").glob("*.png"))
-    text = process.process_image(image_files[3])
-    assert "Full Name" in text
-    assert "Address" in text

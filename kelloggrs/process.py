@@ -4,24 +4,31 @@ import argparse
 import sys
 import logging
 import pytesseract
+import dask
 from PIL import Image
 from pathlib import Path
 from typing import List, Set, Tuple
+from dask.distributed import Client
 
 
-def process_image(image_file: Path) -> List[str]:
-    ocr_texts = []
-    ocr_text = pytesseract.image_to_string(
-        Image.open(image_file), config=r"-l eng --psm 6 -c preserve_interword_spaces=1"
-    )
-    return ocr_text
+def process_file(image_file: Path, logger) -> bool:
+    try:
+        logger.info(f"processing file: {image_file.name}")
+        ocr_text = pytesseract.image_to_string(
+            Image.open(image_file), config=r"-l eng --psm 6 -c preserve_interword_spaces=1"
+        )
+        Path(image_file.parent / f"{image_file.stem}.txt").write_text(ocr_text)
+        return True
+    except:
+        return False
 
 
 def main():
     # parse the arguments
     parser = argparse.ArgumentParser(prog="process_pages")
     parser.add_argument("in_path", help="the path to the input image files")
-    parser.add_argument("page_nums", help="the page numbers to extract text from")
+    parser.add_argument("page_nums", help="the page numbers to process")
+    parser.add_argument("n_workers", help="number of workers to use")
     parser.add_argument(
         "-v", "--verbose", help="increase verbosity", action="store_true"
     )
@@ -53,19 +60,23 @@ def main():
     else:
         page_nums = {int(n) for n in args.page_nums.split(",")}
 
-    in_path = Path(args.in_path)
+    # set up the Dask client
+    n_workers = int(args.n_workers)
+    client = Client(threads_per_worker=1, n_workers=n_workers)
 
+    in_path = Path(args.in_path)
     subdirs = [f for f in in_path.iterdir() if f.is_dir()]
     for dir in subdirs:
+        tasks = []
         for png_file in dir.glob("*.png"):
             if page_nums:
                 curr_num = int(png_file.stem.split("-")[-1])
                 if curr_num not in page_nums:
                     continue
-            if logger:
-                logger.info(f"processing page file: {png_file.name}")
-            Path(f"{dir}/{png_file.stem}.txt").write_text(process_image(png_file))
+            tasks.append(dask.delayed(process_file(png_file, logger)))
+        result = dask.compute(tasks)
 
+    client.close()
     sys.exit(0)
 
 
