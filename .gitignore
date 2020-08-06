@@ -140,5 +140,6 @@ dmypy.json
 .DS_Store
 default.profraw
 
+dask-worker-space
 temp/
 tests/data/output

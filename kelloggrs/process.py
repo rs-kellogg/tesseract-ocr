@@ -5,6 +5,7 @@ import sys
 import logging
 import pytesseract
 import dask
+from datetime import datetime as dt
 from PIL import Image
 from pathlib import Path
 from typing import List, Set, Tuple
@@ -60,23 +61,28 @@ def main():
     else:
         page_nums = {int(n) for n in args.page_nums.split(",")}
 
-    # set up the Dask client
-    n_workers = int(args.n_workers)
-    client = Client(threads_per_worker=1, n_workers=n_workers)
-
     in_path = Path(args.in_path)
+
+    n_workers = int(args.n_workers)
+    dask.config.set(scheduler='processes')
+    dask.config.set(n_workers=n_workers)
+
+    logger.info(f"processing subdirectories in path: {in_path}")
     subdirs = [f for f in in_path.iterdir() if f.is_dir()]
     for dir in subdirs:
-        tasks = []
-        for png_file in dir.glob("*.png"):
+        start = dt.now()
+        process_tasks = []
+        for image_file in list(dir.glob("*.png")):
             if page_nums:
-                curr_num = int(png_file.stem.split("-")[-1])
+                curr_num = int(image_file.stem.split("-")[-1])
                 if curr_num not in page_nums:
                     continue
-            tasks.append(dask.delayed(process_file(png_file, logger)))
-        result = dask.compute(tasks)
+            process_tasks.append(dask.delayed(process_file)(image_file, logger))
+        result = dask.delayed(sum)(process_tasks)
+        sum_result = dask.compute(result)[0]
+        end = dt.now()
+        logger.info(f"{dir.name}: {sum_result} pages successfully processed in {end-start} seconds")
 
-    client.close()
     sys.exit(0)
 
 
