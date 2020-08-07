@@ -85,7 +85,6 @@ def main():
     sum_result = dask.compute(result)[0]
     end = dt.now()
     logger.info(f"{in_path.name}: {sum_result} pages successfully processed in {end-start} seconds")
-    # c.close()
     sys.exit(0)
 
 
