@@ -10,7 +10,6 @@ from PIL import Image
 from pathlib import Path
 from typing import List, Set, Tuple
 from dask.distributed import Client
-from dask import distributed
 
 def process_file(image_file: Path, logger) -> bool:
     try:
