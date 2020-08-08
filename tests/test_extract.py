@@ -41,7 +41,7 @@ def test_extract_script(script_runner, config):
 
 def test_extract_pages(config):
     in_path = Path(dir_path) / f"{config['in_path']}"
-    pdf_file = in_path / config["test_pdf_1"]
+    pdf_file = in_path / config["test_pdf"]
 
     pages = extract.extract_pages(pdf_file)
     assert len(pages[1]) == 9
